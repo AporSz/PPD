@@ -1,0 +1,7 @@
+# ninja log v7
+2	274	1791374823095040927	CMakeFiles/hw1_ppd_cpp.dir/main.cpp.o.ddi	487d5583b7d67a34
+274	282	1791374823367040934	CMakeFiles/hw1_ppd_cpp.dir/CXX.dd	58b55648dc928d45
+274	282	1791374823367040934	CMakeFiles/hw1_ppd_cpp.dir/CXXModules.json	58b55648dc928d45
+274	282	1791374823367040934	CMakeFiles/hw1_ppd_cpp.dir/main.cpp.o.modmap	58b55648dc928d45
+282	1992	1791374823375505083	CMakeFiles/hw1_ppd_cpp.dir/main.cpp.o	c4352e40e0a42171
+1992	2112	1791374825085040974	hw1_ppd_cpp	b35a4999b0ffd68

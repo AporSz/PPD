@@ -1,0 +1,4 @@
+/home/apor/.local/share/JetBrains/Toolbox/apps/clion/bin/cmake/linux/x64/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=/home/apor/.local/share/JetBrains/Toolbox/apps/clion/bin/ninja/linux/x64/ninja -G Ninja -S /home/apor/Documents/My_Things/UNI/PPD/hw1/hw1-ppd-cpp -B /home/apor/Documents/My_Things/UNI/PPD/hw1/hw1-ppd-cpp/cmake-build-debug
+-- Configuring done (0.0s)
+-- Generating done (0.0s)
+-- Build files have been written to: /home/apor/Documents/My_Things/UNI/PPD/hw1/hw1-ppd-cpp/cmake-build-debug

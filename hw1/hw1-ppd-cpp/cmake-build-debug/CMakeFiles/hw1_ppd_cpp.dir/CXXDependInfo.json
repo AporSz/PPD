@@ -1,0 +1,27 @@
+{
+	"bmi-installation" : null,
+	"compiler-frontend-variant" : "GNU",
+	"compiler-id" : "GNU",
+	"compiler-simulate-id" : "",
+	"config" : "Debug",
+	"cxx-modules" : {},
+	"database-info" : null,
+	"dir-cur-bld" : "/home/apor/Documents/My_Things/UNI/PPD/hw1/hw1-ppd-cpp/cmake-build-debug",
+	"dir-cur-src" : "/home/apor/Documents/My_Things/UNI/PPD/hw1/hw1-ppd-cpp",
+	"dir-top-bld" : "/home/apor/Documents/My_Things/UNI/PPD/hw1/hw1-ppd-cpp/cmake-build-debug",
+	"dir-top-src" : "/home/apor/Documents/My_Things/UNI/PPD/hw1/hw1-ppd-cpp",
+	"exports" : [],
+	"forward-modules-from-target-dirs" : [],
+	"include-dirs" : [],
+	"language" : "CXX",
+	"linked-target-dirs" : [],
+	"module-dir" : "/home/apor/Documents/My_Things/UNI/PPD/hw1/hw1-ppd-cpp/cmake-build-debug/CMakeFiles/hw1_ppd_cpp.dir",
+	"sources" : 
+	{
+		"CMakeFiles/hw1_ppd_cpp.dir/main.cpp.o" : 
+		{
+			"language" : "CXX",
+			"source" : "/home/apor/Documents/My_Things/UNI/PPD/hw1/hw1-ppd-cpp/main.cpp"
+		}
+	}
+}

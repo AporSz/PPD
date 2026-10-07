@@ -1,0 +1,3 @@
+/home/apor/Documents/My_Things/UNI/PPD/hw1/hw1-ppd-cpp/cmake-build-debug/CMakeFiles/hw1_ppd_cpp.dir
+/home/apor/Documents/My_Things/UNI/PPD/hw1/hw1-ppd-cpp/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/apor/Documents/My_Things/UNI/PPD/hw1/hw1-ppd-cpp/cmake-build-debug/CMakeFiles/rebuild_cache.dir

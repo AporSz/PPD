@@ -1,0 +1,8 @@
+[
+{
+  "directory": "/home/apor/Documents/My_Things/UNI/PPD/hw1/hw1-ppd-cpp/cmake-build-debug",
+  "command": "/usr/bin/c++ -g -fdiagnostics-color=always -fmodules-ts -fmodule-mapper=CMakeFiles/hw1_ppd_cpp.dir/main.cpp.o.modmap -MD -fdeps-format=p1689r5 -x c++ -o CMakeFiles/hw1_ppd_cpp.dir/main.cpp.o -c /home/apor/Documents/My_Things/UNI/PPD/hw1/hw1-ppd-cpp/main.cpp",
+  "file": "/home/apor/Documents/My_Things/UNI/PPD/hw1/hw1-ppd-cpp/main.cpp",
+  "output": "/home/apor/Documents/My_Things/UNI/PPD/hw1/hw1-ppd-cpp/cmake-build-debug/CMakeFiles/hw1_ppd_cpp.dir/main.cpp.o"
+}
+]
