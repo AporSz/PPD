@@ -1,0 +1,1 @@
+/usr/bin/c++ -O3 -DNDEBUG -Wl,--dependency-file=CMakeFiles/hw1_ppd_cpp.dir/link.d CMakeFiles/hw1_ppd_cpp.dir/main.cpp.o -o hw1_ppd_cpp
