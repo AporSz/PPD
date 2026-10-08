@@ -1,3 +1,11 @@
 trial_no,average_time,threads,language
 1,1.06466,4,cpp
 2,4.90237,4,java
+3,0.824601,4,cpp
+4,4.84762,4,java
+5,0.877142,4,cpp
+6,5.68428,4,java
+7,1.02476,4,cpp
+8,4.58568,4,java
+9,0.944298,4,cpp
+10,5.96502,4,java

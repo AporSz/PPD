@@ -1,0 +1,22 @@
+Both Java and CPP programs do the same thing: add two vectors of n elements together.
+
+The vectors are read from an input file. The addition is timed then the results are compared to the sequential results
+which in this case are the same. For later homeworks of course this will not be as simple. If the results are correct
+the program prints the time it took to add the two vectors together. Both programs have 2 parameters: N which is the
+length of the vectors and nr_of_threads which is the number of threads used for multithreaded execution. But for this
+solution the threads are not required. And N used to verify if the number of elements from the input file is equal to
+the number of elements that are supposed to be added.
+
+The script executes a Python script too, which generates the 2*N random numbers which are to be added together. Then it
+executes the programs and calculates the average time for them. The average time of execution is then saved to results.csv
+I have used aux_java.sh such that it's more convenient to execute both programs with the same script. And i used
+script_aux.sh to execute both programs at once without the need to execute them separately.
+
+I used std::vector<double> in cpp and double[] in java for the vectors. The files are loaded and saved using
+load_input_file/loadInputFile and write_output_file/writeOutputFile. The vectors are added using the add function in
+both cases. I check if the results are correct with check_files_equal/CheckFilesEqual functions. Since my solution is
+sequential, i only generate the sequential solution once, there is no need to generate it again. The results are compared
+with a float tolerance of 1e-4.
+
+Java takes around 5 ms to execute whereas cpp takes only 1. However, this happens only if the CMAKE_BUILD_TYPE is
+RELEASE which enables compiler optimizations. Otherwise, it would take cpp around 15 ms to execute.
