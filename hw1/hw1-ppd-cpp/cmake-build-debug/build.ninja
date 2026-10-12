@@ -49,24 +49,13 @@ cmake_ninja_workdir = /home/apor/Documents/My_Things/UNI/PPD/hw1/hw1-ppd-cpp/cma
 
 build cmake_object_order_depends_target_hw1_ppd_cpp: phony || .
 
-build CMakeFiles/hw1_ppd_cpp.dir/main.cpp.o.ddi: CXX_SCAN__hw1_ppd_cpp_Debug /home/apor/Documents/My_Things/UNI/PPD/hw1/hw1-ppd-cpp/main.cpp || cmake_object_order_depends_target_hw1_ppd_cpp
-  DEP_FILE = CMakeFiles/hw1_ppd_cpp.dir/main.cpp.o.ddi.d
-  DYNDEP_INTERMEDIATE_FILE = CMakeFiles/hw1_ppd_cpp.dir/main.cpp.o.ddi
-  FLAGS = -g -fdiagnostics-color=always
-  OBJ_FILE = CMakeFiles/hw1_ppd_cpp.dir/main.cpp.o
-  PREPROCESSED_OUTPUT_FILE = CMakeFiles/hw1_ppd_cpp.dir/main.cpp.o.ddi.i
-
-build CMakeFiles/hw1_ppd_cpp.dir/main.cpp.o: CXX_COMPILER__hw1_ppd_cpp_scanned_Debug /home/apor/Documents/My_Things/UNI/PPD/hw1/hw1-ppd-cpp/main.cpp | CMakeFiles/hw1_ppd_cpp.dir/main.cpp.o.modmap || cmake_object_order_depends_target_hw1_ppd_cpp CMakeFiles/hw1_ppd_cpp.dir/CXX.dd
+build CMakeFiles/hw1_ppd_cpp.dir/main.cpp.o: CXX_COMPILER__hw1_ppd_cpp_unscanned_Debug /home/apor/Documents/My_Things/UNI/PPD/hw1/hw1-ppd-cpp/main.cpp || cmake_object_order_depends_target_hw1_ppd_cpp
   CONFIG = Debug
   DEP_FILE = CMakeFiles/hw1_ppd_cpp.dir/main.cpp.o.d
-  DYNDEP_MODULE_MAP_FILE = CMakeFiles/hw1_ppd_cpp.dir/main.cpp.o.modmap
-  FLAGS = -g -fdiagnostics-color=always
+  FLAGS = -g -std=gnu++20 -fdiagnostics-color=always
   OBJECT_DIR = CMakeFiles/hw1_ppd_cpp.dir
   OBJECT_FILE_DIR = CMakeFiles/hw1_ppd_cpp.dir
   TARGET_SUPPORT_DIR = CMakeFiles/hw1_ppd_cpp.dir
-  dyndep = CMakeFiles/hw1_ppd_cpp.dir/CXX.dd
-
-build CMakeFiles/hw1_ppd_cpp.dir/CXX.dd | CMakeFiles/hw1_ppd_cpp.dir/CXXModules.json CMakeFiles/hw1_ppd_cpp.dir/main.cpp.o.modmap: CXX_DYNDEP__hw1_ppd_cpp_Debug CMakeFiles/hw1_ppd_cpp.dir/main.cpp.o.ddi | /home/apor/Documents/My_Things/UNI/PPD/hw1/hw1-ppd-cpp/cmake-build-debug/CMakeFiles/hw1_ppd_cpp.dir/CXXDependInfo.json
 
 
 # =============================================================================
@@ -116,13 +105,6 @@ build rebuild_cache: phony CMakeFiles/rebuild_cache.util
 
 # =============================================================================
 # Folder targets.
-
-# =============================================================================
-
-#############################################
-# Folder: /home/apor/Documents/My_Things/UNI/PPD/hw1/hw1-ppd-cpp/cmake-build-debug
-
-build codegen: phony
 
 # =============================================================================
 
