@@ -5,4 +5,8 @@ set(CMAKE_CXX_STANDARD 20)
 
 add_executable(hw2_ppd_cpp main.cpp
         model/Matrix.cpp
-        model/Matrix.h)
+        model/Matrix.h
+        main.cpp
+        model/Matrix.h
+        model/StaticMatrix.h
+        model/StaticMatrix.cpp)
