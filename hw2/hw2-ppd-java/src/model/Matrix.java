@@ -132,4 +132,24 @@ public class Matrix {
 
         return sum;
     }
+
+    public void reAllocate() {
+        this.a = new int[this.n][this.m];
+    }
+
+    public boolean equals(Matrix other) {
+        if (other == this) return true;
+
+        if (this.n != other.getN() || this.m != other.getM()) return false;
+
+        for (int i = 0; i < this.n; i++) {
+            for (int j = 0; j < this.m; j++) {
+                if (this.a[i][j] != other.get(i, j)) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
 }
