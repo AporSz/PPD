@@ -9,4 +9,5 @@ add_executable(hw2_ppd_cpp main.cpp
         main.cpp
         model/Matrix.h
         model/StaticMatrix.h
-        model/StaticMatrix.cpp)
+        model/StaticMatrix.cpp
+        model/DynamicMatrix.cpp)

@@ -1,27 +1,25 @@
-//
-// Created by apor on 10/18/26.
-//
-
 #ifndef HW2_PPD_CPP_MATRIX_H
 #define HW2_PPD_CPP_MATRIX_H
+
 #include <string>
+#include <iostream>
 
 using namespace std;
 
 class Matrix {
 public:
     virtual ~Matrix() = default;
-    virtual int get(int i, int j);
-    virtual void set(int v, int i, int j);
-    virtual int getN();
-    virtual int getM();
-    virtual void reAllocate();
-    virtual Matrix fromFile(const string& filename);
+    virtual int get(int i, int j) = 0;
+    virtual void set(int v, int i, int j) = 0;
+    virtual int getN() = 0;
+    virtual int getM() = 0;
+    virtual void reAllocate() = 0;
     virtual void toFile(const string& filename);
     virtual string toString();
-    virtual int convolveAt(const Matrix& F, const Matrix& C, int i, int j);
-    virtual bool equals(const Matrix& other);
-};
+    virtual bool equals(Matrix* other);
 
+    static int convolveAt(Matrix* F, Matrix* C, int i, int j);
+    static Matrix* fromFile(const string& filename, bool isStatic = false);
+};
 
 #endif //HW2_PPD_CPP_MATRIX_H
