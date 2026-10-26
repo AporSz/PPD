@@ -1,36 +1,21 @@
-#include <iostream>
-#include <fstream>
-#include <chrono>
-#include <string>
-#include <filesystem>
 #include <algorithm>
+#include <cctype>
+#include <chrono>
+#include <filesystem>
+#include <fstream>
+#include <iostream>
+#include <memory>
 #include <stdexcept>
+#include <string>
 
 #include "model/Matrix.h"
-#include "model/DynamicMatrix.h"
-
 #include "executors/ConvolutionExecutor.h"
-#include "executors/SequentialExecutor.h"
 #include "executors/HorizontalExecutor.h"
+#include "executors/SequentialExecutor.h"
 #include "executors/VerticalExecutor.h"
 
 using namespace std;
 using namespace std::chrono;
-
-Matrix* F = nullptr;
-Matrix* C = nullptr;
-int p = 4;
-
-ConvolutionExecutor* getExecutorType(const string& type) {
-    string t = type;
-    transform(t.begin(), t.end(), t.begin(), ::tolower);
-
-    if (t == "s") return new SequentialExecutor(F, C);
-    if (t == "h") return new HorizontalExecutor(F, C);
-    if (t == "v") return new VerticalExecutor(F, C);
-
-    throw invalid_argument("Invalid executor type: " + type);
-}
 
 bool verify(const string& sequentialPath, const string& outputPath) {
     ifstream fSeq(sequentialPath);
@@ -47,45 +32,6 @@ bool verify(const string& sequentialPath, const string& outputPath) {
     return !getline(fOut, lineOut);
 }
 
-void timeAndExecute(ConvolutionExecutor* executor, SequentialExecutor* seq, const string& outputPath, const string& sequentialPath, const string& matrixF_path) {
-    bool seqExists = filesystem::exists(sequentialPath);
-    if (!seqExists && dynamic_cast<SequentialExecutor*>(executor) == nullptr) {
-        try {
-            seq->executeTask(1);
-            F->toFile(sequentialPath);
-            delete F;
-            F = Matrix::fromFile(matrixF_path);
-        } catch (const exception& e) {
-            throw runtime_error(e.what());
-        }
-    }
-
-    auto t0 = high_resolution_clock::now();
-
-    try {
-        executor->executeTask(p);
-    } catch (const exception& e) {
-        throw runtime_error(e.what());
-    }
-
-    auto t1 = high_resolution_clock::now();
-
-    if (dynamic_cast<SequentialExecutor*>(executor) != nullptr) {
-        F->toFile(sequentialPath);
-    } else {
-        F->toFile(outputPath);
-        if (!verify(sequentialPath, outputPath)) {
-            throw runtime_error("Incorrect solution");
-        }
-    }
-
-    delete F;
-    F = Matrix::fromFile(matrixF_path);
-
-    duration<double, milli> ms = t1 - t0;
-    cout << ms.count() << "\n";
-}
-
 string resolvePath(const string& relPath) {
     if (filesystem::exists(relPath)) return relPath;
     if (relPath.rfind("../", 0) == 0 && filesystem::exists(relPath.substr(3))) {
@@ -96,43 +42,67 @@ string resolvePath(const string& relPath) {
 
 int main(int argc, char* argv[]) {
     if (argc != 3) {
-        cerr << "Error: Please provide exactly two arguments: <threads> <type>\n";
+        cerr << "Error: expected arguments <threads> <s|h|v>.\n";
         return 1;
     }
 
-    string type;
+    int p;
+    string type = argv[2];
+    transform(type.begin(), type.end(), type.begin(), [](unsigned char c) {
+        return static_cast<char>(tolower(c));
+    });
 
     try {
         p = stoi(argv[1]);
         if (p <= 0) throw invalid_argument("Number of threads must be positive");
-        type = argv[2];
-        if (type.length() != 1) throw invalid_argument("Invalid executor type");
+        if (type != "s" && type != "h" && type != "v") {
+            throw invalid_argument("Executor must be 's', 'h', or 'v'");
+        }
     } catch (const exception& e) {
         cerr << "Error: " << e.what() << "\n";
         return 1;
     }
 
-    string matrixF_path = resolvePath("../files/MatrixF.txt");
-    string convolutionM_path = resolvePath("../files/ConvolutionM.txt");
-    string sequentialPath = resolvePath("../files/sequential.txt");
-    string outputPath = resolvePath("../files/output.txt");
+    const string inputPath = resolvePath("../files/date.txt");
+    const string convolutionPath = resolvePath("../files/ConvolutionM.txt");
+    const string sequentialPath = resolvePath("../files/sequential.txt");
+    const string outputPath = resolvePath("../files/output.txt");
 
     try {
-        F = Matrix::fromFile(matrixF_path);
-        C = Matrix::fromFile(convolutionM_path);
-        if (C->getN() != C->getM() || C->getN() % 2 == 0) {
-            throw invalid_argument("Convolution matrix must be square with an odd dimension.");
+        unique_ptr<Matrix> F(Matrix::fromFile(inputPath));
+        unique_ptr<Matrix> C(Matrix::fromFile(convolutionPath));
+        if (C->getN() != 3 || C->getM() != 3) {
+            throw invalid_argument("HW3 requires a 3x3 convolution matrix.");
+        }
+        if (type == "h" && p > F->getN()) {
+            throw invalid_argument("Line-based thread count cannot exceed the number of rows.");
+        }
+        if (type == "v" && p > F->getM()) {
+            throw invalid_argument("Line-based thread count cannot exceed the number of columns.");
         }
 
-        auto* seq = new SequentialExecutor(F, C);
-        ConvolutionExecutor* executor = getExecutorType(type);
+        unique_ptr<ConvolutionExecutor> executor;
+        if (type == "s") {
+            executor = make_unique<SequentialExecutor>(F.get(), C.get());
+        } else if (type == "h") {
+            executor = make_unique<HorizontalExecutor>(F.get(), C.get());
+        } else {
+            executor = make_unique<VerticalExecutor>(F.get(), C.get());
+        }
 
-        timeAndExecute(executor, seq, outputPath, sequentialPath, matrixF_path);
+        const auto t0 = high_resolution_clock::now();
+        executor->executeTask(type == "s" ? 1 : p);
+        const auto t1 = high_resolution_clock::now();
 
-        delete executor;
-        delete seq;
-        delete C;
-        delete F;
+        F->toFile(outputPath);
+        if (type == "s") {
+            F->toFile(sequentialPath);
+        } else if (!verify(sequentialPath, outputPath)) {
+            throw runtime_error("Incorrect solution or missing sequential reference.");
+        }
+
+        duration<double, milli> ms = t1 - t0;
+        cout << ms.count() << "\n";
     } catch (const exception& e) {
         cerr << "Error: " << e.what() << "\n";
         return 1;

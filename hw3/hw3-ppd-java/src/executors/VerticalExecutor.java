@@ -15,21 +15,17 @@ public class VerticalExecutor implements ConvolutionExecutor {
     @Override
     public void executeTask(int p) throws InterruptedException {
         int m = this.F.getM();
-        int size = m / p;    // every thread gets at least 'size' elements
-        int extra = m % p;   // the first 'extra' threads get one more element
+        int size = m / p;
+        int extra = m % p;
 
         Thread[] threads = new Thread[p];
         int start = 0;
         for (int id = 0; id < p; id++) {
-            int end = start + size;
-            if (id < extra) {
-                end++;
-            }
-            int prev = start - 1;
-            if (prev < 0) prev = 0;
-            int next = end;
-            if (next == m) next = m - 1;
-            threads[id] = new Thread(new VerticalTask(this.F, this.C, start, end, this.F.getColumn(prev), this.F.getColumn(next)));
+            int end = start + size + (id < extra ? 1 : 0);
+            int previous = start > 0 ? start - 1 : 0;
+            int next = end < m ? end : m - 1;
+            threads[id] = new Thread(new VerticalTask(this.F, this.C, start, end,
+                    F.getColumn(previous), F.getColumn(next)));
             start = end;
         }
         ConvolutionExecutor.startAndJoin(threads);

@@ -13,11 +13,11 @@ public class SequentialTask implements Runnable {
 
     @Override
     public void run() {
-        int[] prev = this.F.getRow(0);
-        int[] current = this.F.getRow(0);
-        int[] next = this.F.getRow(1);
         int m = this.F.getM();
         int n = this.F.getN();
+        int[] prev = this.F.getRow(0);
+        int[] current = this.F.getRow(0);
+        int[] next = this.F.getRow(n > 1 ? 1 : 0);
 
         for (int i = 0; i < n; i++)
         {

@@ -13,11 +13,11 @@ public:
     SequentialTask(Matrix* F, Matrix* C) : F(F), C(C) {}
 
     void run() {
-        vector<int> prev = this->F->getRow(0);
-        vector<int> current = this->F->getRow(0);
-        vector<int> next = this->F->getRow(1);
         int m = this->F->getM();
         int n = this->F->getN();
+        vector<int> prev = this->F->getRow(0);
+        vector<int> current = this->F->getRow(0);
+        vector<int> next = this->F->getRow(n > 1 ? 1 : 0);
 
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < m; j++) {

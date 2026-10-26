@@ -179,7 +179,6 @@ public class Matrix {
         for (int i = 0; i < n; i++) {
             column[i] = a[i][j];
         }
-
         return column;
     }
 
@@ -190,4 +189,5 @@ public class Matrix {
             a[i][j] = column[i];
         }
     }
+
 }

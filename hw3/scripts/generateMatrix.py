@@ -13,14 +13,14 @@ def write_matrix(file_path, rows, cols, min_val=0, max_val=100):
             f.write(" ".join(row_vals) + "\n")
 
 def main():
-    if len(sys.argv) != 4:
-        print(f"Usage: {sys.argv[0]} <n> <m> <k>", file=sys.stderr)
+    if len(sys.argv) not in (3, 4):
+        print(f"Usage: {sys.argv[0]} <n> <m> [k=3]", file=sys.stderr)
         sys.exit(1)
 
     try:
         n = int(sys.argv[1])
         m = int(sys.argv[2])
-        k = int(sys.argv[3])
+        k = int(sys.argv[3]) if len(sys.argv) == 4 else 3
     except ValueError:
         print("Error: n, m, and k must be integers.", file=sys.stderr)
         sys.exit(1)
@@ -29,8 +29,8 @@ def main():
         print("Error: Dimensions must be positive integers.", file=sys.stderr)
         sys.exit(1)
 
-    if k % 2 == 0:
-        print("Error: The convolution matrix dimension k must be odd.", file=sys.stderr)
+    if k != 3:
+        print("Error: HW3 requires a 3x3 convolution matrix.", file=sys.stderr)
         sys.exit(1)
 
     # Determine paths relative to the project directory
@@ -39,7 +39,7 @@ def main():
     files_dir = os.path.join(base_dir, "files")
     os.makedirs(files_dir, exist_ok=True)
 
-    matrix_f_path = os.path.join(files_dir, "MatrixF.txt")
+    matrix_f_path = os.path.join(files_dir, "date.txt")
     convolution_m_path = os.path.join(files_dir, "ConvolutionM.txt")
 
     write_matrix(matrix_f_path, n, m)
