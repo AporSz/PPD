@@ -29,6 +29,10 @@ def main():
         print("Error: Dimensions must be positive integers.", file=sys.stderr)
         sys.exit(1)
 
+    if k % 2 == 0:
+        print("Error: The convolution matrix dimension k must be odd.", file=sys.stderr)
+        sys.exit(1)
+
     # Determine paths relative to the project directory
     script_dir = os.path.dirname(os.path.abspath(__file__))
     base_dir = os.path.dirname(script_dir)
@@ -40,6 +44,11 @@ def main():
 
     write_matrix(matrix_f_path, n, m)
     write_matrix(convolution_m_path, k, k)
+
+    for output_name in ("sequential.txt", "output.txt"):
+        output_path = os.path.join(files_dir, output_name)
+        if os.path.exists(output_path):
+            os.remove(output_path)
 
     print(f"Generated Matrix F ({n}x{m}) in {matrix_f_path}")
     print(f"Generated Convolution Matrix C ({k}x{k}) in {convolution_m_path}")

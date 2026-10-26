@@ -2,10 +2,30 @@
 #include <algorithm>
 #include <stdexcept>
 
-StaticMatrix::StaticMatrix(int n, int m) : n(n), m(m), a(static_cast<size_t>(n) * static_cast<size_t>(m), 0) {
-    if (n <= 0 || m <= 0) {
-        throw std::invalid_argument("Matrix dimensions must be positive.");
+int StaticMatrix::storage[StaticMatrix::MATRIX_COUNT][StaticMatrix::MAX_SIZE][StaticMatrix::MAX_SIZE] = {};
+bool StaticMatrix::inUse[StaticMatrix::MATRIX_COUNT] = {};
+
+StaticMatrix::StaticMatrix(int n, int m) : n(n), m(m), slot(-1) {
+    if (n <= 0 || m <= 0 || n > MAX_SIZE || m > MAX_SIZE) {
+        throw std::invalid_argument("Matrix dimensions must be between 1 and 10000 for static allocation.");
     }
+
+    for (int i = 0; i < MATRIX_COUNT; i++) {
+        if (!inUse[i]) {
+            slot = i;
+            inUse[i] = true;
+            break;
+        }
+    }
+    if (slot == -1) {
+        throw std::runtime_error("No static matrix slots are available.");
+    }
+
+    reAllocate();
+}
+
+StaticMatrix::~StaticMatrix() {
+    inUse[slot] = false;
 }
 
 int StaticMatrix::get(int i, int j) {
@@ -21,12 +41,12 @@ int StaticMatrix::get(int i, int j) {
         j = this->m - 1;
     }
 
-    return this->a[static_cast<size_t>(i) * static_cast<size_t>(this->m) + static_cast<size_t>(j)];
+    return storage[slot][i][j];
 }
 
 void StaticMatrix::set(int v, int i, int j) {
     if (i < 0 || i >= this->n || j < 0 || j >= this->m) throw std::out_of_range("Index out of range!");
-    this->a[static_cast<size_t>(i) * static_cast<size_t>(this->m) + static_cast<size_t>(j)] = v;
+    storage[slot][i][j] = v;
 }
 
 int StaticMatrix::getN() {
@@ -38,5 +58,7 @@ int StaticMatrix::getM() {
 }
 
 void StaticMatrix::reAllocate() {
-    std::fill(this->a.begin(), this->a.end(), 0);
+    for (int i = 0; i < n; i++) {
+        std::fill(storage[slot][i], storage[slot][i] + m, 0);
+    }
 }

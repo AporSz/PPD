@@ -1,11 +1,41 @@
+# IDE and build directories
+.idea/
+cmake-build-debug/
+cmake-build-release/
+build/
+out/
+*.iml
+
+# CSV / Results files
+*all_results*.csv
+*TABLE*.csv
+TABLE.csv
+all_results.csv
+
+# Large input/output data files
+**/files/MatrixF.txt
+**/files/output.txt
+**/files/sequential.txt
+output.txt
+sequential.txt
+MatrixF.txt
+
+# Specific hw build rules
 /hw1/hw1-ppd-cpp/cmake-build-debug/
 /hw1/hw1-ppd-cpp/cmake-build-release/
 /hw1/hw1-ppd-cpp/.idea/
 /hw1/hw1-ppd-java/.idea/
 /hw1/hw1-ppd-java/out/
 /hw1/hw1-ppd-cpp/build/
+/hw1/output.txt
+/hw1/hw1-ppd-cpp/build/output.txt
 /lab3/cmake-build-debug/
 /hw2/hw2-ppd-cpp/cmake-build-debug/
 /hw2/hw2-ppd-cpp/.idea/
 /hw2/hw2-ppd-cpp/cmake-build-release/
 /hw2/hw2-ppd-cpp/build/
+/hw3/hw3-ppd-cpp/cmake-build-debug/
+/hw3/hw3-ppd-cpp/cmake-build-release/
+/hw3/hw3-ppd-cpp/build/
+/hw3/hw3-ppd-cpp/.idea/
+/hw3/hw3-ppd-java/out/

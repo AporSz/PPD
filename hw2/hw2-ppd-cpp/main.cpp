@@ -135,6 +135,9 @@ int main(int argc, char* argv[]) {
     try {
         F = Matrix::fromFile(matrixF_path, isStatic);
         C = Matrix::fromFile(convolutionM_path, isStatic);
+        if (C->getN() != C->getM() || C->getN() % 2 == 0) {
+            throw invalid_argument("Convolution matrix must be square with an odd dimension.");
+        }
         if (isStatic) {
             V = new StaticMatrix(F->getN(), F->getM());
         } else {
