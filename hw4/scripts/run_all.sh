@@ -7,6 +7,7 @@ Usage: run_all.sh [--start-id ID] [--dry-run]
 
 Runs all required HW4 test configurations. Each configuration is measured
 10 times by script.sh, which also checks its result against Variant 0.
+Variants 1 and 1.1 are also run with synchronous MPI_Send (MPI_Ssend).
 Results are written to hw4/all_results.csv.
 
 Use --start-id to resume at a 1-based configuration ID.
@@ -42,7 +43,8 @@ add_configuration() {
     local variant=$1
     local test_case=$2
     local processes=$3
-    CONFIGURATIONS+=("$variant $test_case $processes")
+    local send_mode=${4:-standard}
+    CONFIGURATIONS+=("$variant $test_case $processes $send_mode")
 }
 
 add_random_configurations() {
@@ -72,6 +74,16 @@ add_configuration 2 fixed16 4
 add_random_configurations 2 random1000 4 8 16
 add_random_configurations 2 randomSkewed 4 8 16
 
+# Re-run the standard-communication variants with MPI_Ssend. These cases
+# verify that their communication does not depend on MPI_Send buffering.
+for variant in 1 1.1; do
+    add_configuration "$variant" fixed16 5 ssend
+    for processes in 5 9 17; do
+        add_configuration "$variant" random10000 "$processes" ssend
+        add_configuration "$variant" randomSkewed "$processes" ssend
+    done
+done
+
 CONFIGURATION_COUNT=${#CONFIGURATIONS[@]}
 if (( START_ID > CONFIGURATION_COUNT )); then
     echo "Error: start ID must be between 1 and $CONFIGURATION_COUNT." >&2
@@ -81,14 +93,14 @@ fi
 if [[ "$DRY_RUN" == true ]]; then
     echo "Dry run: configurations $START_ID-$CONFIGURATION_COUNT, 10 executions each."
     for ((index = START_ID - 1; index < CONFIGURATION_COUNT; index++)); do
-        read -r variant test_case processes <<< "${CONFIGURATIONS[index]}"
-        echo "[$((index + 1))/$CONFIGURATION_COUNT] variant=$variant case=$test_case processes=$processes"
+        read -r variant test_case processes send_mode <<< "${CONFIGURATIONS[index]}"
+        echo "[$((index + 1))/$CONFIGURATION_COUNT] variant=$variant case=$test_case processes=$processes send_mode=$send_mode"
     done
     exit 0
 fi
 
 RESULTS_FILE="$HW4_DIR/all_results.csv"
-CSV_HEADER="timestamp,variant,processes,test_case,n1,n2,average_time_seconds"
+CSV_HEADER="timestamp,variant,processes,send_mode,test_case,n1,n2,average_time_seconds"
 if (( START_ID == 1 )); then
     echo "$CSV_HEADER" > "$RESULTS_FILE"
 elif [[ -s "$RESULTS_FILE" ]]; then
@@ -158,7 +170,7 @@ for entry in "${CONFIGURATIONS[@]}"; do
         continue
     fi
 
-    read -r variant test_case processes <<< "$entry"
+    read -r variant test_case processes send_mode <<< "$entry"
     case "$test_case" in
         fixed16) n1=16; n2=16 ;;
         random10000) n1=10000; n2=10000 ;;
@@ -171,20 +183,20 @@ for entry in "${CONFIGURATIONS[@]}"; do
 
     case_csv="$TEMP_DIR/result-$configuration.csv"
     log_file="$TEMP_DIR/run-$configuration.log"
-    echo "[$configuration/$CONFIGURATION_COUNT] variant=$variant case=$test_case (${n1}+${n2} digits) processes=$processes"
-    if ! "$RUNNER" "$variant" "$processes" "$case_csv" >"$log_file" 2>&1; then
+    echo "[$configuration/$CONFIGURATION_COUNT] variant=$variant case=$test_case (${n1}+${n2} digits) processes=$processes send_mode=$send_mode"
+    if ! HW4_SEND_MODE="$send_mode" "$RUNNER" "$variant" "$processes" "$case_csv" >"$log_file" 2>&1; then
         cat "$log_file" >&2
         echo "Error: benchmark failed for variant=$variant, case=$test_case, processes=$processes." >&2
         exit 1
     fi
 
-    average=$(awk -F, '$4 == "average" { print $5; count++ } END { if (count != 1) exit 1 }' "$case_csv") || {
+    average=$(awk -F, '$5 == "average" { print $6; count++ } END { if (count != 1) exit 1 }' "$case_csv") || {
         cat "$log_file" >&2
         echo "Error: expected exactly one average row in $case_csv." >&2
         exit 1
     }
-    printf '%s,%s,%s,%s,%s,%s,%s\n' \
-        "$(date --iso-8601=seconds)" "$variant" "$processes" "$test_case" "$n1" "$n2" "$average" \
+    printf '%s,%s,%s,%s,%s,%s,%s,%s\n' \
+        "$(date --iso-8601=seconds)" "$variant" "$processes" "$send_mode" "$test_case" "$n1" "$n2" "$average" \
         >> "$RESULTS_FILE"
     tail -n 3 "$log_file"
 done

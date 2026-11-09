@@ -1,0 +1,149 @@
+Homework 4 - Parallel Addition of Large Numbers
+
+Overview
+
+The program adds two large non-negative integers using sequential and MPI
+implementations. Each input number is stored as a sequence of decimal digits,
+least-significant digit first. The implementations are:
+
+- Variant 0: sequential addition.
+- Variant 1: MPI standard communication. Rank 0 reads and distributes digit
+  chunks; worker ranks add their chunks and pass carries along the ranks.
+- Variant 1.1: optimized Variant 1. Workers precompute results for both
+  possible incoming carries, then select the correct result when the carry
+  arrives.
+- Variant 2: MPI scatter/gather. Rank 0 distributes equally sized, padded
+  chunks with MPI_Scatter; ranks add the chunks and MPI_Gather collects the
+  result.
+- Variant 3: asynchronous MPI communication. Nonblocking communication is
+  used to distribute input chunks, receive carries, and collect result chunks.
+
+The timer is synchronized across ranks and reports the maximum elapsed time.
+Reading the input and writing the result are included in the measured
+execution time.
+
+Input and output files
+
+The program reads number1.txt and number2.txt from the hw4 directory. Each
+file contains:
+
+1. The number of digits.
+2. The digits, separated by whitespace, in least-significant-first order.
+
+For example, the decimal number 1234 is represented by:
+
+4
+4 3 2 1
+
+The result is written to number3.txt in the same format and digit order. If
+the sum has an extra leading decimal digit, that digit appears at the end of
+the digit sequence.
+
+Building and running one variant
+
+The benchmark script configures and builds the program in Release mode. To
+build manually from the hw4 directory:
+
+cmake -S . -B build-mpi -DCMAKE_CXX_COMPILER=mpic++ -DCMAKE_BUILD_TYPE=Release
+cmake --build build-mpi --config Release --parallel
+
+Run the program from the build directory so its relative input and output file
+paths resolve correctly:
+
+cd build-mpi
+mpirun -np <process-count> ./hw4 <variant>
+
+Replace <variant> with 0, 1, 1.1, 2, or 3. Variants 1, 1.1, 2, and 3 require
+at least two MPI processes. Variant 0 is sequential and is run with one
+process in the full test suite.
+
+The scripts add Open MPI's --oversubscribe option so the specified process
+counts can run when they exceed available CPU slots. When running as root,
+they also pass Open MPI's --allow-run-as-root option. Set MPIEXEC to select a
+different MPI launcher, or CXX to select a different MPI C++ compiler wrapper.
+
+Benchmark scripts
+
+scripts/script.sh runs one variant and process count:
+
+./scripts/script.sh <variant> <processes> [csv-file]
+
+It builds the program in Release mode, runs Variant 0 to create a correctness
+reference, then executes the requested variant 10 times. Each result is
+compared with the reference. The script stops with an error if execution
+fails, a timing value cannot be read, or a result differs from the reference.
+It writes the 10 measured times and their average to the selected CSV file.
+If csv-file is omitted, the output is scripts/results.csv.
+
+scripts/run_all.sh runs the required configurations, with 10 measured
+executions per configuration. It includes the required 32 configurations
+using MPI_Send, plus 14 additional Variant 1 and Variant 1.1 configurations
+using MPI_Ssend:
+
+./scripts/run_all.sh
+
+Use --dry-run to list the configurations without building or running them:
+
+./scripts/run_all.sh --dry-run
+
+Use --start-id ID to resume from a 1-based configuration ID:
+
+./scripts/run_all.sh --start-id 13
+
+Starting at ID 1 creates a new all_results.csv and replaces any previous
+file. Resuming at a later ID requires an existing CSV with the expected
+header and appends the remaining configurations. Choose the next uncompleted
+ID when resuming to avoid duplicate rows.
+
+The full test matrix is:
+
+- Variant 0: one process for each of the four input cases below.
+- Variant 1: fixed 16-digit example with 5 processes; random 10000+10000
+  digits with 5, 9, and 17 processes; random 100+100000 digits with 5, 9,
+  and 17 processes.
+- Variant 1.1: the same inputs and process counts as Variant 1.
+- Variant 2: fixed 16-digit example with 4 processes; random 1000+1000
+  digits with 4, 8, and 16 processes; random 100+100000 digits with 4, 8,
+  and 16 processes.
+- Variant 3: the same inputs and process counts as Variant 1.
+- MPI_Ssend checks: Variants 1 and 1.1 repeat their Variant 1 configurations
+  using synchronous sends. This checks that the standard communication
+  variants do not depend on MPI_Send buffering.
+
+The fixed example uses these least-significant-first digit sequences:
+
+number1: 9999 4444 4444 9999
+number2: 9999 5555 5555 9999
+
+Random input files are generated once per size pair and reused across the
+process counts and applicable variants. The generator writes the declared
+digit count followed by the digits, choosing a nonzero most-significant digit.
+Temporary test inputs are used while the suite runs. On exit, run_all.sh
+restores the original number1.txt, number2.txt, and number3.txt files if they
+existed before the run.
+
+Results
+
+run_all.sh writes one average row per completed configuration to
+hw4/all_results.csv. Its columns are:
+
+timestamp,variant,processes,send_mode,test_case,n1,n2,average_time_seconds
+
+script.sh writes each of its 10 measurements and an average row to its CSV.
+Its send_mode column identifies whether MPI_Send (standard) or MPI_Ssend
+(ssend) was used. To run one synchronous-send benchmark directly:
+
+HW4_SEND_MODE=ssend ./scripts/script.sh 1 5
+
+The synchronous build is kept separate in build-mpi-ssend; the normal build
+remains in build-mpi. The macro HW4_USE_SYNCHRONOUS_SEND is defined only for
+the synchronous build, causing the standard communication implementation to
+map its send operations to MPI_Ssend.
+
+The full-suite runner uses temporary per-configuration CSV files for those
+details and keeps only each configuration's average in all_results.csv.
+
+Correctness is checked by comparing the result file byte-for-byte against a
+result produced by Variant 0 for the same input. A configuration is added to
+all_results.csv only after all 10 measured executions have succeeded and
+matched the sequential reference.

@@ -8,6 +8,7 @@ Usage: script.sh <variant> <processes> [csv-file]
 Variants: 0, 1, 1.1, 2, 3
 Runs the selected variant 10 times, checks every result against Variant 0,
 and reports the average execution time.
+Set HW4_SEND_MODE=ssend to build and test Variants 1 or 1.1 with MPI_Ssend.
 
 Example:
   ./scripts/script.sh 2 8
@@ -18,7 +19,15 @@ EOF
 
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 HW4_DIR=$(cd -- "$SCRIPT_DIR/.." && pwd)
-BUILD_DIR="$HW4_DIR/build-mpi"
+SEND_MODE=${HW4_SEND_MODE:-standard}
+case "$SEND_MODE" in
+    standard) BUILD_DIR="$HW4_DIR/build-mpi" ;;
+    ssend) BUILD_DIR="$HW4_DIR/build-mpi-ssend" ;;
+    *)
+        echo "Error: HW4_SEND_MODE must be 'standard' or 'ssend'." >&2
+        exit 2
+        ;;
+esac
 PROGRAM="$BUILD_DIR/hw4"
 RUNS=10
 
@@ -58,9 +67,13 @@ if "$MPIEXEC" --version 2>&1 | grep -qi 'Open MPI'; then
     fi
 fi
 
-cmake -S "$HW4_DIR" -B "$BUILD_DIR" \
-    -DCMAKE_CXX_COMPILER="${CXX:-mpic++}" \
-    -DCMAKE_BUILD_TYPE=Release
+CMAKE_ARGS=(-S "$HW4_DIR" -B "$BUILD_DIR"
+    -DCMAKE_CXX_COMPILER="${CXX:-mpic++}"
+    -DCMAKE_BUILD_TYPE=Release)
+if [[ "$SEND_MODE" == ssend ]]; then
+    CMAKE_ARGS+=(-DCMAKE_CXX_FLAGS=-DHW4_USE_SYNCHRONOUS_SEND)
+fi
+cmake "${CMAKE_ARGS[@]}"
 cmake --build "$BUILD_DIR" --config Release --parallel
 
 if [[ "$CSV_FILE" != /* ]]; then
@@ -68,7 +81,7 @@ if [[ "$CSV_FILE" != /* ]]; then
 fi
 mkdir -p "$(dirname -- "$CSV_FILE")"
 if [[ ! -s "$CSV_FILE" ]]; then
-    echo "timestamp,variant,processes,run,time_seconds" > "$CSV_FILE"
+    echo "timestamp,variant,processes,send_mode,run,time_seconds" > "$CSV_FILE"
 fi
 
 TEMP_DIR=$(mktemp -d)
@@ -127,8 +140,8 @@ for ((run = 1; run <= RUNS; run++)); do
     fi
 
     TIMES+=("$time_value")
-    printf '%s,%s,%s,%s,%s\n' \
-        "$(date --iso-8601=seconds)" "$VARIANT" "$PROCESS_COUNT" "$run" "$time_value" \
+    printf '%s,%s,%s,%s,%s,%s\n' \
+        "$(date --iso-8601=seconds)" "$VARIANT" "$PROCESS_COUNT" "$SEND_MODE" "$run" "$time_value" \
         >> "$CSV_FILE"
     awk -v run="$run" -v total="$RUNS" -v time="$time_value" \
         'BEGIN { printf "  execution time: %s seconds (%d/%d)\n", time, run, total }'
@@ -136,8 +149,8 @@ done
 
 AVERAGE=$(printf '%s\n' "${TIMES[@]}" |
     awk '{ total += $1 } END { printf "%.9f", total / NR }')
-printf '%s,%s,%s,average,%s\n' \
-    "$(date --iso-8601=seconds)" "$VARIANT" "$PROCESS_COUNT" "$AVERAGE" \
+printf '%s,%s,%s,%s,average,%s\n' \
+    "$(date --iso-8601=seconds)" "$VARIANT" "$PROCESS_COUNT" "$SEND_MODE" "$AVERAGE" \
     >> "$CSV_FILE"
 
 echo "Average execution time: $AVERAGE seconds"
